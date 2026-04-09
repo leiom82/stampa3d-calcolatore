@@ -1,0 +1,277 @@
+{
+  "aggiornato": "2025-04-09",
+  "fonte": "Prezzi indicativi all-in (energia + oneri + trasporto + imposte esclusa IVA). Fonte: siti ufficiali fornitori + ARERA Q1 2025.",
+  "arera_riferimento": 0.2184,
+  "fornitori": [
+    {
+      "id": "arera",
+      "nome": "ARERA — Prezzo di Riferimento",
+      "gruppo": "Tutela / Riferimento",
+      "prezzo_kwh": 0.2184,
+      "tipo": "Variabile trimestrale",
+      "note": "Prezzo medio monorario tutelato Q1 2025. Aggiornato ogni trimestre da ARERA.",
+      "url": "https://www.arera.it/it/prezzi.htm"
+    },
+    {
+      "id": "enel_flat",
+      "nome": "Enel Energia — Luce Flat",
+      "gruppo": "Enel",
+      "prezzo_kwh": 0.2350,
+      "tipo": "Fisso 12 mesi",
+      "note": "Tariffa monoraria fissa. Include oneri di sistema.",
+      "url": "https://www.enelenergia.it"
+    },
+    {
+      "id": "enel_web",
+      "nome": "Enel Energia — Luce Web",
+      "gruppo": "Enel",
+      "prezzo_kwh": 0.2150,
+      "tipo": "Variabile",
+      "note": "Tariffa variabile indicizzata al mercato.",
+      "url": "https://www.enelenergia.it"
+    },
+    {
+      "id": "eni_sicura",
+      "nome": "Eni Plenitude — Luce Sicura",
+      "gruppo": "Eni Plenitude",
+      "prezzo_kwh": 0.2290,
+      "tipo": "Fisso 12 mesi",
+      "note": "Prezzo bloccato per 12 mesi.",
+      "url": "https://www.plenitude.com"
+    },
+    {
+      "id": "eni_smart",
+      "nome": "Eni Plenitude — Luce Smart",
+      "gruppo": "Eni Plenitude",
+      "prezzo_kwh": 0.2100,
+      "tipo": "Variabile",
+      "note": "Tariffa variabile mensile.",
+      "url": "https://www.plenitude.com"
+    },
+    {
+      "id": "nen_monoraria",
+      "nome": "NeN — Monoraria",
+      "gruppo": "NeN (A2A)",
+      "prezzo_kwh": 0.2200,
+      "tipo": "Variabile mensile",
+      "note": "Tariffa NeN monoraria, aggiornata mensilmente. Zona Emilia-Romagna ~0,22-0,25€/kWh.",
+      "url": "https://www.nen.it"
+    },
+    {
+      "id": "nen_bioraria",
+      "nome": "NeN — Bioraria",
+      "gruppo": "NeN (A2A)",
+      "prezzo_kwh": 0.2050,
+      "tipo": "Variabile mensile bioraria",
+      "note": "F1 (lavorativi 8-19) più cara, F2/F3 più economiche. Prezzo medio.",
+      "url": "https://www.nen.it"
+    },
+    {
+      "id": "a2a_fisso",
+      "nome": "A2A Energia — Prezzo Fisso",
+      "gruppo": "A2A",
+      "prezzo_kwh": 0.2380,
+      "tipo": "Fisso 12 mesi",
+      "note": "Tariffa fissa annuale inclusi oneri.",
+      "url": "https://www.a2aenergia.eu"
+    },
+    {
+      "id": "a2a_var",
+      "nome": "A2A Energia — Variabile",
+      "gruppo": "A2A",
+      "prezzo_kwh": 0.2180,
+      "tipo": "Variabile",
+      "note": "Aggiornata mensilmente al PUN.",
+      "url": "https://www.a2aenergia.eu"
+    },
+    {
+      "id": "edison_flat",
+      "nome": "Edison Energia — Luce Flat",
+      "gruppo": "Edison",
+      "prezzo_kwh": 0.2320,
+      "tipo": "Fisso 12 mesi",
+      "note": "Prezzo bloccato incluso trasporto.",
+      "url": "https://www.edisonenergia.it"
+    },
+    {
+      "id": "edison_web",
+      "nome": "Edison Energia — Web",
+      "gruppo": "Edison",
+      "prezzo_kwh": 0.2120,
+      "tipo": "Variabile",
+      "note": "Tariffa online, sconto per contratto digitale.",
+      "url": "https://www.edisonenergia.it"
+    },
+    {
+      "id": "illumia_mono",
+      "nome": "Illumia — Luce Monoraria",
+      "gruppo": "Illumia",
+      "prezzo_kwh": 0.2160,
+      "tipo": "Variabile mensile",
+      "note": "Aggiornata mensilmente al PUN + spread.",
+      "url": "https://www.illumia.it"
+    },
+    {
+      "id": "illumia_fisso",
+      "nome": "Illumia — Luce Fissa",
+      "gruppo": "Illumia",
+      "prezzo_kwh": 0.2280,
+      "tipo": "Fisso 12 mesi",
+      "note": "Prezzo garantito per 12 mesi.",
+      "url": "https://www.illumia.it"
+    },
+    {
+      "id": "hera_comm",
+      "nome": "Hera Comm — Luce",
+      "gruppo": "Hera",
+      "prezzo_kwh": 0.2250,
+      "tipo": "Variabile",
+      "note": "Fornitore forte in Emilia-Romagna, Toscana, Marche.",
+      "url": "https://www.heracomm.it"
+    },
+    {
+      "id": "hera_fisso",
+      "nome": "Hera Comm — Prezzo Fisso",
+      "gruppo": "Hera",
+      "prezzo_kwh": 0.2390,
+      "tipo": "Fisso 12 mesi",
+      "note": "Disponibile nelle zone servite da Hera.",
+      "url": "https://www.heracomm.it"
+    },
+    {
+      "id": "iren_var",
+      "nome": "Iren Mercato — Luce",
+      "gruppo": "Iren",
+      "prezzo_kwh": 0.2200,
+      "tipo": "Variabile",
+      "note": "Forte in Piemonte, Liguria, Emilia.",
+      "url": "https://www.irenmercato.it"
+    },
+    {
+      "id": "acea_var",
+      "nome": "Acea Energia — Variabile",
+      "gruppo": "Acea",
+      "prezzo_kwh": 0.2230,
+      "tipo": "Variabile",
+      "note": "Forte nel Centro Italia, soprattutto Roma e Lazio.",
+      "url": "https://www.aceaenergia.it"
+    },
+    {
+      "id": "acea_fisso",
+      "nome": "Acea Energia — Fisso",
+      "gruppo": "Acea",
+      "prezzo_kwh": 0.2410,
+      "tipo": "Fisso 12 mesi",
+      "note": "",
+      "url": "https://www.aceaenergia.it"
+    },
+    {
+      "id": "octopus",
+      "nome": "Octopus Energy Italia",
+      "gruppo": "Octopus",
+      "prezzo_kwh": 0.2080,
+      "tipo": "Variabile mensile",
+      "note": "Fornitore 100% rinnovabile, prezzi competitivi.",
+      "url": "https://octopusenergy.it"
+    },
+    {
+      "id": "wekiwi",
+      "nome": "Wekiwi — Luce",
+      "gruppo": "Wekiwi",
+      "prezzo_kwh": 0.2050,
+      "tipo": "Variabile mensile",
+      "note": "Ricarica mensile anticipata, prezzi bassi.",
+      "url": "https://www.wekiwi.it"
+    },
+    {
+      "id": "pulsee",
+      "nome": "Pulsee — Luce Flex",
+      "gruppo": "Pulsee (Axpo)",
+      "prezzo_kwh": 0.2130,
+      "tipo": "Variabile mensile",
+      "note": "100% rinnovabile, app mobile.",
+      "url": "https://www.pulsee.it"
+    },
+    {
+      "id": "sorgenia_var",
+      "nome": "Sorgenia — Next Energy",
+      "gruppo": "Sorgenia",
+      "prezzo_kwh": 0.2170,
+      "tipo": "Variabile mensile",
+      "note": "Aggiornata al PUN mensile + spread fisso.",
+      "url": "https://www.sorgenia.it"
+    },
+    {
+      "id": "sorgenia_fisso",
+      "nome": "Sorgenia — Prezzo Fisso",
+      "gruppo": "Sorgenia",
+      "prezzo_kwh": 0.2310,
+      "tipo": "Fisso 12 mesi",
+      "note": "",
+      "url": "https://www.sorgenia.it"
+    },
+    {
+      "id": "alperia",
+      "nome": "Alperia — Luce",
+      "gruppo": "Alperia",
+      "prezzo_kwh": 0.2140,
+      "tipo": "Variabile",
+      "note": "Forte in Trentino-Alto Adige, energia idroelettrica.",
+      "url": "https://www.alperia.eu"
+    },
+    {
+      "id": "dolomiti",
+      "nome": "Dolomiti Energia — Luce",
+      "gruppo": "Dolomiti Energia",
+      "prezzo_kwh": 0.2190,
+      "tipo": "Variabile",
+      "note": "Forte in Trentino, energia idroelettrica.",
+      "url": "https://www.dolomitienergiaservizi.it"
+    },
+    {
+      "id": "engie_var",
+      "nome": "Engie — Luce Variabile",
+      "gruppo": "Engie",
+      "prezzo_kwh": 0.2200,
+      "tipo": "Variabile mensile",
+      "note": "",
+      "url": "https://www.engie.it"
+    },
+    {
+      "id": "engie_fisso",
+      "nome": "Engie — Luce Fissa",
+      "gruppo": "Engie",
+      "prezzo_kwh": 0.2350,
+      "tipo": "Fisso 12 mesi",
+      "note": "",
+      "url": "https://www.engie.it"
+    },
+    {
+      "id": "esprinet",
+      "nome": "E.ON — Luce",
+      "gruppo": "E.ON",
+      "prezzo_kwh": 0.2260,
+      "tipo": "Variabile",
+      "note": "",
+      "url": "https://www.eon-energia.com"
+    },
+    {
+      "id": "green_network",
+      "nome": "Green Network — Luce",
+      "gruppo": "Green Network",
+      "prezzo_kwh": 0.2090,
+      "tipo": "Variabile mensile",
+      "note": "100% rinnovabile certificato.",
+      "url": "https://www.greennetworkenergy.it"
+    },
+    {
+      "id": "custom",
+      "nome": "✏️ Inserisci manualmente",
+      "gruppo": "Personalizzato",
+      "prezzo_kwh": 0.24,
+      "tipo": "Personalizzato",
+      "note": "Inserisci il tuo prezzo reale dalla bolletta.",
+      "url": ""
+    }
+  ]
+}

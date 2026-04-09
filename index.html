@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calcolatore Stampa 3D Pro</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f8f7f4;--surface:#ffffff;--surface2:#f1f0ec;--border:rgba(0,0,0,0.09);--border2:rgba(0,0,0,0.16);
+  --text:#1a1a18;--text2:#6b6b68;--text3:#9ca3af;
+  --accent:#0D9488;--accentD:#0a7a70;--accentL:#e6f7f5;
+  --warn:#d97706;--warnL:#fef3c7;--warnD:#92400e;
+  --green:#059669;--greenL:#d1fae5;--greenD:#065f46;
+  --purple:#7C3AED;--purpleL:#ede9fe;
+  --red:#dc2626;--redL:#fee2e2;
+  --radius:10px;--radiusLg:14px;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* NAV */
+nav{background:var(--surface);border-bottom:0.5px solid var(--border);padding:0 1.5rem;display:flex;align-items:center;gap:0;position:sticky;top:0;z-index:100;overflow-x:auto}
+.nav-logo{font-size:14px;font-weight:700;color:var(--accent);padding:1rem 1rem 1rem 0;white-space:nowrap;margin-right:8px}
+nav a{font-size:13px;color:var(--text2);text-decoration:none;padding:1.1rem 0.85rem;border-bottom:2px solid transparent;transition:color .2s,border-color .2s;white-space:nowrap;flex-shrink:0}
+nav a:hover,nav a.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+/* SECTIONS */
+section{display:none;max-width:960px;margin:0 auto;padding:1.8rem 1.4rem}
+section.active{display:block}
+
+h1{font-size:24px;font-weight:700;margin-bottom:0.4rem}
+h2{font-size:17px;font-weight:600;margin-bottom:0.9rem}
+p{font-size:14px;line-height:1.7;color:var(--text2)}
+.subtitle{font-size:14px;color:var(--text2);margin-bottom:1.6rem}
+
+/* GRID */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:11px}
+@media(max-width:660px){.g2,.g3,.g4{grid-template-columns:1fr}}
+
+/* CARDS */
+.card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radiusLg);padding:1.1rem 1.3rem}
+.card-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:11px}
+.metric{background:var(--surface2);border-radius:var(--radius);padding:.9rem 1rem}
+.metric .lbl{font-size:12px;color:var(--text2);margin-bottom:3px}
+.metric .val{font-size:21px;font-weight:700;color:var(--text)}
+
+/* FORM */
+.row{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;gap:10px}
+.row label{font-size:13px;color:var(--text);flex:1}
+.row input[type=number],.row select{
+  font-size:13px;padding:6px 9px;border:0.5px solid var(--border2);border-radius:var(--radius);
+  background:var(--surface2);color:var(--text);outline:none;transition:border-color .2s
+}
+.row input[type=number]{width:95px;text-align:right}
+.row select{min-width:95px}
+.row input[type=number]:focus,.row select:focus{border-color:var(--accent)}
+
+/* SLIDERS */
+.srow{margin-bottom:13px}
+.srow .slbl{display:flex;justify-content:space-between;font-size:13px;color:var(--text);margin-bottom:5px}
+.srow .slbl span{font-weight:700;color:var(--accent)}
+input[type=range]{width:100%;height:4px;border-radius:2px;outline:none;cursor:pointer;-webkit-appearance:none;background:var(--border2)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;border-radius:50%;background:var(--accent);border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.18)}
+
+/* BREAKDOWN */
+.brow{display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:0.5px solid var(--border)}
+.brow:last-child{border-bottom:none}
+.brow .lbl{color:var(--text2)}
+.brow .amt{font-weight:700}
+.brow.tot{font-size:14px;font-weight:700}
+hr.div{border:none;border-top:0.5px solid var(--border);margin:7px 0}
+
+/* TAGS */
+.tag{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;margin-left:5px}
+.tw{background:var(--warnL);color:var(--warnD)}
+.tg{background:var(--greenL);color:var(--greenD)}
+.ti{background:var(--accentL);color:var(--accentD)}
+.tp{background:var(--purpleL);color:var(--purple)}
+.tr{background:var(--redL);color:var(--red)}
+
+/* TOTAL BOX */
+.total-box{background:var(--accentL);border:1px solid rgba(13,148,136,.25);border-radius:var(--radiusLg);padding:1.3rem;text-align:center;margin-top:14px}
+.total-box .tl{font-size:12px;color:var(--text2);margin-bottom:3px}
+.total-box .tv{font-size:38px;font-weight:800;color:var(--accentD)}
+.total-box .ts{font-size:11px;color:var(--text2);margin-top:5px}
+.guad-box{background:var(--greenL);border:0.5px solid rgba(5,150,105,.25);border-radius:var(--radius);padding:9px 13px;display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+.guad-box span:first-child{font-size:13px;color:var(--green);font-weight:600}
+.guad-box span:last-child{font-size:18px;font-weight:800;color:var(--green)}
+
+/* PRINTER SELECT */
+.printer-select-wrap{margin-bottom:14px}
+.printer-brand-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);padding:6px 0 2px}
+#printerSelect{width:100%;font-size:14px;padding:8px 12px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none;transition:border-color .2s;cursor:pointer}
+#printerSelect:focus{border-color:var(--accent)}
+.printer-info-bar{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;margin-bottom:2px}
+.pinfo{background:var(--accentL);border-radius:var(--radius);padding:5px 11px;font-size:12px;color:var(--accentD);font-weight:600}
+
+/* EXTRAS */
+.extra-section{margin-top:14px}
+.extra-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:10px}
+.extra-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.extra-item{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:10px 12px;display:flex;align-items:center;gap:10px}
+.extra-item .eicon{font-size:18px;flex-shrink:0}
+.extra-item .einfo{flex:1}
+.extra-item .ename{font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px}
+.extra-item .erow{display:flex;align-items:center;gap:6px}
+.extra-item input[type=number]{width:65px;font-size:12px;padding:4px 7px;border:0.5px solid var(--border2);border-radius:8px;background:var(--surface2);color:var(--text);text-align:right}
+.extra-item .eunit{font-size:11px;color:var(--text2)}
+.extra-item .eqty{display:flex;align-items:center;gap:4px}
+.extra-item .eqty label{font-size:11px;color:var(--text2)}
+.extra-item .eqty input{width:45px}
+.extra-total{font-size:12px;font-weight:700;color:var(--accent);margin-top:8px;text-align:right}
+
+/* CHART */
+.chart-wrap{position:relative;height:250px;margin-top:10px}
+
+/* GLOSSARY */
+.gitem{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radiusLg);padding:1.1rem 1.3rem;margin-bottom:9px}
+.gitem .term{font-size:14px;font-weight:700;color:var(--accentD);margin-bottom:3px}
+.gitem .def{font-size:13px;line-height:1.65;color:var(--text2)}
+.gitem .ex{font-size:12px;color:var(--text3);margin-top:4px;font-style:italic}
+
+/* GUIDE */
+.guide-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radiusLg);padding:1.2rem 1.3rem;margin-bottom:12px;display:flex;gap:14px}
+.gicon{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.gcontent h3{font-size:14px;font-weight:700;margin-bottom:3px}
+.gcontent p{font-size:13px;line-height:1.6}
+.steps{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+.step{display:flex;gap:10px;align-items:flex-start}
+.stepn{display:inline-flex;width:20px;height:20px;background:var(--accent);color:#fff;border-radius:50%;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0;margin-top:2px}
+.stept{font-size:13px;line-height:1.6;color:var(--text2)}
+
+footer{text-align:center;font-size:11px;color:var(--text3);padding:1.5rem;border-top:0.5px solid var(--border);margin-top:1.5rem}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">🖨 Stampa 3D Pro</div>
+  <a href="#" class="active" onclick="showSec('calc',this)">Calcolatore</a>
+  <a href="#" onclick="showSec('chart',this)">Grafico</a>
+  <a href="#" onclick="showSec('glossario',this)">Voci spiegate</a>
+  <a href="#" onclick="showSec('guida',this)">Guida</a>
+</nav>
+
+<!-- ══════════════ CALCOLATORE ══════════════ -->
+<section id="calc" class="active">
+  <h1>Calcolatore costi stampa 3D</h1>
+  <p class="subtitle">Seleziona la stampante, inserisci i dati di stampa e gli extra — il prezzo si aggiorna in tempo reale.</p>
+
+  <!-- PRINTER SELECTOR -->
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-title">Stampante</div>
+    <div class="printer-select-wrap">
+      <select id="printerSelect" onchange="onPrinterChange()">
+        <optgroup label="── Bambu Lab ──">
+          <option value="bambu_a1mini"     data-w="150" data-p="299"  data-v="3000" data-t="FDM">A1 Mini — 150W · €299</option>
+          <option value="bambu_a1"         data-w="200" data-p="399"  data-v="4000" data-t="FDM">A1 — 200W · €399</option>
+          <option value="bambu_p1p"        data-w="220" data-p="599"  data-v="5000" data-t="FDM">P1P — 220W · €599</option>
+          <option value="bambu_p1s"        data-w="250" data-p="749"  data-v="5000" data-t="FDM" selected>P1S — 250W · €749</option>
+          <option value="bambu_x1c"        data-w="350" data-p="1199" data-v="6000" data-t="FDM">X1 Carbon — 350W · €1.199</option>
+          <option value="bambu_x1e"        data-w="370" data-p="1499" data-v="6000" data-t="FDM">X1E — 370W · €1.499</option>
+          <option value="bambu_h2d"        data-w="500" data-p="2999" data-v="6000" data-t="FDM">H2D — 500W · €2.999</option>
+          <option value="bambu_m5c"        data-w="50"  data-p="299"  data-v="3000" data-t="MSLA">M5C (resin) — 50W · €299</option>
+          <option value="bambu_p2s"        data-w="270" data-p="899"  data-v="5000" data-t="FDM">P2S — 270W · €899</option>
+        </optgroup>
+        <optgroup label="── Anycubic ──">
+          <option value="any_kobra2"       data-w="180" data-p="199"  data-v="3000" data-t="FDM">Kobra 2 — 180W · €199</option>
+          <option value="any_kobra2pro"    data-w="200" data-p="259"  data-v="3500" data-t="FDM">Kobra 2 Pro — 200W · €259</option>
+          <option value="any_kobra2max"    data-w="350" data-p="449"  data-v="3500" data-t="FDM">Kobra 2 Max — 350W · €449</option>
+          <option value="any_kobra3"       data-w="220" data-p="299"  data-v="4000" data-t="FDM">Kobra 3 — 220W · €299</option>
+          <option value="any_kobra3combo"  data-w="250" data-p="499"  data-v="4000" data-t="FDM">Kobra 3 Combo — 250W · €499</option>
+          <option value="any_kobra_x"      data-w="300" data-p="599"  data-v="4000" data-t="FDM">Kobra X — 300W · €599</option>
+          <option value="any_s1"           data-w="400" data-p="799"  data-v="5000" data-t="FDM">Anycubic S1 — 400W · €799</option>
+          <option value="any_photonm5"     data-w="35"  data-p="249"  data-v="3000" data-t="MSLA">Photon Mono M5 (resin) — 35W · €249</option>
+          <option value="any_photonm5s"    data-w="40"  data-p="349"  data-v="3000" data-t="MSLA">Photon Mono M5s (resin) — 40W · €349</option>
+          <option value="any_m9"           data-w="55"  data-p="499"  data-v="3500" data-t="MSLA">Photon M9 (resin) — 55W · €499</option>
+        </optgroup>
+        <optgroup label="── Creality ──">
+          <option value="cre_ender3v3se"   data-w="220" data-p="169"  data-v="3000" data-t="FDM">Ender-3 V3 SE — 220W · €169</option>
+          <option value="cre_ender3v3"     data-w="250" data-p="249"  data-v="3500" data-t="FDM">Ender-3 V3 — 250W · €249</option>
+          <option value="cre_ender3v3ke"   data-w="300" data-p="299"  data-v="3500" data-t="FDM">Ender-3 V3 KE — 300W · €299</option>
+          <option value="cre_k1"           data-w="350" data-p="349"  data-v="4000" data-t="FDM">K1 — 350W · €349</option>
+          <option value="cre_k1max"        data-w="400" data-p="499"  data-v="4000" data-t="FDM">K1 Max — 400W · €499</option>
+          <option value="cre_k1cmax"       data-w="420" data-p="649"  data-v="4500" data-t="FDM">K1C Max — 420W · €649</option>
+          <option value="cre_k2plus"       data-w="500" data-p="799"  data-v="5000" data-t="FDM">K2 Plus — 500W · €799</option>
+          <option value="cre_halot"        data-w="40"  data-p="199"  data-v="3000" data-t="MSLA">Halot-One Plus (resin) — 40W · €199</option>
+        </optgroup>
+        <optgroup label="── Flashforge ──">
+          <option value="ff_adventurer5m"  data-w="280" data-p="399"  data-v="4000" data-t="FDM">Adventurer 5M — 280W · €399</option>
+          <option value="ff_adventurer5mpro" data-w="300" data-p="499" data-v="4000" data-t="FDM">Adventurer 5M Pro — 300W · €499</option>
+          <option value="ff_creator4"      data-w="500" data-p="1299" data-v="5000" data-t="FDM">Creator 4 — 500W · €1.299</option>
+          <option value="ff_guider3ultra"  data-w="600" data-p="1999" data-v="5000" data-t="FDM">Guider 3 Ultra — 600W · €1.999</option>
+          <option value="ff_foto10"        data-w="50"  data-p="299"  data-v="3000" data-t="MSLA">Foto 10 (resin) — 50W · €299</option>
+        </optgroup>
+        <optgroup label="── QIDI ──">
+          <option value="qidi_plus4"       data-w="350" data-p="549"  data-v="5000" data-t="FDM">Plus4 — 350W · €549</option>
+          <option value="qidi_x4"          data-w="400" data-p="649"  data-v="5000" data-t="FDM">X-4 — 400W · €649</option>
+          <option value="qidi_q1pro"       data-w="300" data-p="449"  data-v="4500" data-t="FDM">Q1 Pro — 300W · €449</option>
+          <option value="qidi_tech1s"      data-w="280" data-p="399"  data-v="4000" data-t="FDM">Tech 1S — 280W · €399</option>
+          <option value="qidi_maxi"        data-w="500" data-p="799"  data-v="5000" data-t="FDM">Max-I — 500W · €799</option>
+        </optgroup>
+        <optgroup label="── Elegoo ──">
+          <option value="el_neptune4"      data-w="250" data-p="199"  data-v="3000" data-t="FDM">Neptune 4 — 250W · €199</option>
+          <option value="el_neptune4pro"   data-w="280" data-p="259"  data-v="3500" data-t="FDM">Neptune 4 Pro — 280W · €259</option>
+          <option value="el_neptune4max"   data-w="400" data-p="399"  data-v="3500" data-t="FDM">Neptune 4 Max — 400W · €399</option>
+          <option value="el_neptune4plus"  data-w="320" data-p="299"  data-v="3500" data-t="FDM">Neptune 4 Plus — 320W · €299</option>
+          <option value="el_centauri"      data-w="300" data-p="349"  data-v="4000" data-t="FDM">Centauri Carbon — 300W · €349</option>
+          <option value="el_saturn4ultra"  data-w="60"  data-p="499"  data-v="3500" data-t="MSLA">Saturn 4 Ultra (resin) — 60W · €499</option>
+          <option value="el_jupiter"       data-w="80"  data-p="699"  data-v="4000" data-t="MSLA">Jupiter (resin) — 80W · €699</option>
+          <option value="el_mars5ultra"    data-w="30"  data-p="199"  data-v="3000" data-t="MSLA">Mars 5 Ultra (resin) — 30W · €199</option>
+        </optgroup>
+        <optgroup label="── Prusa ──">
+          <option value="prusa_mk4"        data-w="260" data-p="799"  data-v="6000" data-t="FDM">MK4 — 260W · €799</option>
+          <option value="prusa_mk4s"       data-w="270" data-p="849"  data-v="6000" data-t="FDM">MK4S — 270W · €849</option>
+          <option value="prusa_xl"         data-w="600" data-p="2099" data-v="7000" data-t="FDM">XL — 600W · €2.099</option>
+          <option value="prusa_mini"       data-w="120" data-p="429"  data-v="5000" data-t="FDM">MINI+ — 120W · €429</option>
+          <option value="prusa_core1"      data-w="300" data-p="999"  data-v="6000" data-t="FDM">Core One — 300W · €999</option>
+          <option value="prusa_sl1s"       data-w="55"  data-p="1299" data-v="5000" data-t="MSLA">SL1S (resin) — 55W · €1.299</option>
+        </optgroup>
+        <optgroup label="── Snapmaker ──">
+          <option value="snap_u1"          data-w="350" data-p="1299" data-v="5000" data-t="FDM">Snapmaker U1 — 350W · €1.299</option>
+        </optgroup>
+      </select>
+      <div class="printer-info-bar" id="printerInfoBar"></div>
+    </div>
+  </div>
+
+  <div class="g2" style="margin-bottom:14px">
+    <div class="card">
+      <div class="card-title">Parametri stampa</div>
+      <div class="row"><label>Ore</label><input type="number" id="ore" value="13" min="0"></div>
+      <div class="row"><label>Minuti</label><input type="number" id="minuti" value="11" min="0" max="59"></div>
+      <div class="row"><label>Grammi materiale</label><input type="number" id="grammi" value="282" min="0"></div>
+      <div class="row"><label>€/kg materiale</label><input type="number" id="prezzo_kg" value="23" min="0" step="0.5"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Costi operativi (auto-compilati)</div>
+      <div class="row"><label>Consumo (W)</label><input type="number" id="watt" value="250" min="0"></div>
+      <div style="margin-bottom:9px">
+        <div style="font-size:12px;color:var(--text2);margin-bottom:5px;display:flex;justify-content:space-between;align-items:center">
+          <span>Fornitore energia</span>
+          <span id="tariffe_status" style="font-size:11px;color:var(--text3)">⏳ caricamento...</span>
+        </div>
+        <select id="fornitoreSelect" onchange="onFornitoreChange()" style="width:100%;font-size:13px;padding:6px 9px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--surface2);color:var(--text);outline:none">
+          <option value="">— caricamento fornitori... —</option>
+        </select>
+        <div id="fornitore_info" style="display:none;margin-top:6px;font-size:11px;padding:6px 10px;background:var(--accentL);border-radius:8px;color:var(--accentD);line-height:1.5"></div>
+      </div>
+      <div class="row">
+        <label>€/kWh <span style="font-size:11px;color:var(--text3)">(modificabile)</span></label>
+        <input type="number" id="prezzo_kwh" value="0.24" min="0" step="0.001">
+      </div>
+      <div class="row"><label>Valore stampante (€)</label><input type="number" id="costo_printer" value="749" min="0" step="50"></div>
+      <div class="row"><label>Vita utile (ore)</label><input type="number" id="vita_utile" value="5000" min="100" step="100"></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-title">Parametri avanzati</div>
+    <div class="g2">
+      <div>
+        <div class="srow"><div class="slbl">Failure rate <span id="fr_v">15%</span></div><input type="range" id="failure_rate" min="0" max="50" value="15" step="1"></div>
+        <div class="srow"><div class="slbl">Usura consumabili <span id="us_v">10%</span></div><input type="range" id="usura" min="0" max="30" value="10" step="1"></div>
+      </div>
+      <div>
+        <div class="srow"><div class="slbl">Manodopera <span id="mn_v">15%</span></div><input type="range" id="manodopera" min="0" max="100" value="15" step="1"></div>
+        <div class="srow"><div class="slbl">Il tuo guadagno <span id="mg_v">20%</span></div><input type="range" id="guadagno" min="0" max="100" value="20" step="1"></div>
+      </div>
+    </div>
+    <div class="row" style="margin-bottom:0;margin-top:4px;max-width:260px">
+      <label>IVA su vendita</label>
+      <select id="iva">
+        <option value="0">Nessuna</option>
+        <option value="22" selected>22%</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- EXTRAS -->
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-title">Materiali extra &amp; accessori</div>
+    <div class="extra-grid">
+
+      <!-- Inserti filettati -->
+      <div class="extra-item">
+        <div class="eicon">🔩</div>
+        <div class="einfo">
+          <div class="ename">Inserti filettati</div>
+          <div class="erow">
+            <div class="eqty"><label>Qtà</label><input type="number" id="ex_ins_qty" value="0" min="0" step="1" oninput="calc()"></div>
+            <div class="eqty"><label>€/cad</label><input type="number" id="ex_ins_price" value="0.15" min="0" step="0.01" oninput="calc()"></div>
+            <div class="eunit">€</div>
+          </div>
+          <div class="extra-total" id="ex_ins_tot">0,00€</div>
+        </div>
+      </div>
+
+      <!-- Imballaggio -->
+      <div class="extra-item">
+        <div class="eicon">📦</div>
+        <div class="einfo">
+          <div class="ename">Imballaggio</div>
+          <div class="erow">
+            <div class="eqty"><label>Costo totale €</label><input type="number" id="ex_imb_price" value="0" min="0" step="0.1" oninput="calc()"></div>
+          </div>
+          <div class="extra-total" id="ex_imb_tot">0,00€</div>
+        </div>
+      </div>
+
+      <!-- NFC Tag -->
+      <div class="extra-item">
+        <div class="eicon">📡</div>
+        <div class="einfo">
+          <div class="ename">NFC Tag</div>
+          <div class="erow">
+            <div class="eqty"><label>Qtà</label><input type="number" id="ex_nfc_qty" value="0" min="0" step="1" oninput="calc()"></div>
+            <div class="eqty"><label>€/cad</label><input type="number" id="ex_nfc_price" value="0.50" min="0" step="0.05" oninput="calc()"></div>
+          </div>
+          <div class="extra-total" id="ex_nfc_tot">0,00€</div>
+        </div>
+      </div>
+
+      <!-- Calamita -->
+      <div class="extra-item">
+        <div class="eicon">🧲</div>
+        <div class="einfo">
+          <div class="ename">Calamita (standard)</div>
+          <div class="erow">
+            <div class="eqty"><label>Qtà</label><input type="number" id="ex_cal_qty" value="0" min="0" step="1" oninput="calc()"></div>
+            <div class="eqty"><label>€/cad</label><input type="number" id="ex_cal_price" value="0.10" min="0" step="0.01" oninput="calc()"></div>
+          </div>
+          <div class="extra-total" id="ex_cal_tot">0,00€</div>
+        </div>
+      </div>
+
+      <!-- Colla -->
+      <div class="extra-item">
+        <div class="eicon">🫧</div>
+        <div class="einfo">
+          <div class="ename">Colla (costo per uso)</div>
+          <div class="erow">
+            <div class="eqty"><label>Costo uso €</label><input type="number" id="ex_col_price" value="0" min="0" step="0.05" oninput="calc()"></div>
+          </div>
+          <div class="extra-total" id="ex_col_tot">0,00€</div>
+        </div>
+      </div>
+
+      <!-- Viti / bulloni -->
+      <div class="extra-item">
+        <div class="eicon">🔧</div>
+        <div class="einfo">
+          <div class="ename">Viti / bulloni</div>
+          <div class="erow">
+            <div class="eqty"><label>Qtà</label><input type="number" id="ex_vit_qty" value="0" min="0" step="1" oninput="calc()"></div>
+            <div class="eqty"><label>€/cad</label><input type="number" id="ex_vit_price" value="0.05" min="0" step="0.01" oninput="calc()"></div>
+          </div>
+          <div class="extra-total" id="ex_vit_tot">0,00€</div>
+        </div>
+      </div>
+
+      <!-- Magneti neodimio -->
+      <div class="extra-item">
+        <div class="eicon">⚡</div>
+        <div class="einfo">
+          <div class="ename">Magneti al neodimio</div>
+          <div class="erow">
+            <div class="eqty"><label>Qtà</label><input type="number" id="ex_mag_qty" value="0" min="0" step="1" oninput="calc()"></div>
+            <div class="eqty"><label>€/cad</label><input type="number" id="ex_mag_price" value="0.20" min="0" step="0.01" oninput="calc()"></div>
+          </div>
+          <div class="extra-total" id="ex_mag_tot">0,00€</div>
+        </div>
+      </div>
+
+      <!-- Spedizione -->
+      <div class="extra-item">
+        <div class="eicon">🚚</div>
+        <div class="einfo">
+          <div class="ename">Spedizione</div>
+          <div class="erow">
+            <div class="eqty"><label>Costo spedizione €</label><input type="number" id="ex_spe_price" value="0" min="0" step="0.1" oninput="calc()"></div>
+          </div>
+          <div class="extra-total" id="ex_spe_tot">0,00€</div>
+        </div>
+      </div>
+
+      <!-- Altro -->
+      <div class="extra-item">
+        <div class="eicon">➕</div>
+        <div class="einfo">
+          <div class="ename">Altro (costo libero)</div>
+          <div class="erow">
+            <div class="eqty"><label>Costo €</label><input type="number" id="ex_alt_price" value="0" min="0" step="0.1" oninput="calc()"></div>
+          </div>
+          <div class="extra-total" id="ex_alt_tot">0,00€</div>
+        </div>
+      </div>
+
+    </div>
+    <div style="margin-top:10px;display:flex;justify-content:flex-end;align-items:center;gap:12px">
+      <span style="font-size:13px;color:var(--text2)">Totale extra:</span>
+      <span id="extras_total" style="font-size:16px;font-weight:800;color:var(--accent)">0,00€</span>
+    </div>
+  </div>
+
+  <div id="metrics" class="g4" style="margin-bottom:14px"></div>
+  <div class="g2">
+    <div class="card" id="breakdown"></div>
+    <div>
+      <div class="total-box" id="totalbox"></div>
+      <div class="guad-box" id="guadbox"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ GRAFICO ══════════════ -->
+<section id="chart">
+  <h1>Ripartizione costi</h1>
+  <p class="subtitle">Visualizzazione aggiornata in base ai parametri del calcolatore. Vai nel calcolatore per modificarli.</p>
+  <div class="g2" style="margin-bottom:14px" id="chart-metrics"></div>
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-title">Distribuzione percentuale</div>
+    <div class="chart-wrap"><canvas id="pieChart"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Importi per voce (€)</div>
+    <div class="chart-wrap"><canvas id="barChart"></canvas></div>
+  </div>
+</section>
+
+<!-- ══════════════ GLOSSARIO ══════════════ -->
+<section id="glossario">
+  <h1>Voci spiegate</h1>
+  <p class="subtitle">Cosa significa ogni parametro del calcolatore e come interpretarlo</p>
+
+  <div class="gitem"><div class="term">Costo materiale</div><div class="def">Il costo del filamento (FDM) o resina (MSLA) consumato dalla stampa. Si calcola da grammi e prezzo al kg. Includere il materiale di supporto se usato.</div><div class="ex">Es: 282g × 23€/kg = 6,49€</div></div>
+  <div class="gitem"><div class="term">Costo elettricità</div><div class="def">Energia consumata dalla stampante per l'intera durata della stampa. Il consumo varia: stampanti FDM chiuse (Bambu P1S, X1C) 200-350W, open frame (Ender, Neptune) 150-300W, MSLA/resin 30-80W. Con NeN in Emilia-Romagna stimare ~0,24€/kWh.</div><div class="ex">Es: 0,25kW × 13,18h × 0,24€ = 0,79€</div></div>
+  <div class="gitem"><div class="term">Ammortamento stampante</div><div class="def">Quota del valore della macchina consumata da questa singola stampa. Si divide il valore per la vita utile stimata (in ore) e si moltiplica per la durata della stampa. Permette di recuperare nel tempo l'investimento hardware.</div><div class="ex">Es: 749€ ÷ 5.000h × 13,18h = 1,97€</div></div>
+  <div class="gitem"><div class="term">Usura consumabili</div><div class="def">Costo progressivo di ugello, piatto di stampa (PEI/texture), cinghie di trasmissione, lubrificante guide, filtri AMS/MMU. Per PLA su FDM chiusa: 8-12%. Per materiali abrasivi (CF, GF, PA+): 20-30%. Per resina: includere FEP/nFEP.</div><div class="ex">Consigliato: 10% PLA standard, 20%+ materiali tecnici</div></div>
+  <div class="gitem"><div class="term">Failure rate</div><div class="def">Percentuale di stampe che falliscono (distacco, layer shift, ostruzione ugello, difetti estetici). Il costo viene spalmato sulle stampe riuscite per coprire gli sprechi. Le stampanti chiuse con livellamento automatico hanno tassi più bassi.</div><div class="ex">Valori tipici: 5-10% P1S/X1C con PLA, 15-25% materiali nuovi o geometrie complesse</div></div>
+  <div class="gitem"><div class="term">Manodopera</div><div class="def">Compenso per il tempo operativo: slicing, preparazione, caricamento, monitoraggio, rimozione, post-processing (deburring, supporti), imballaggio. Non è il tuo profitto — è il costo del tuo tempo come lavoratore.</div><div class="ex">Consigliato: 10-20% stampe semplici, 30-50% con post-processing intensivo</div></div>
+  <div class="gitem"><div class="term">Il tuo guadagno (profitto netto)</div><div class="def">La percentuale di profitto che rimane a te DOPO aver coperto tutti i costi inclusa la manodopera. È denaro tuo, non costo operativo. Viene calcolato sull'intera base di costo + manodopera.</div><div class="ex">Consigliato: 15-30% B2C, 10-20% B2B con volumi, 30%+ prodotti custom unici</div></div>
+  <div class="gitem"><div class="term">Materiali extra &amp; accessori</div><div class="def">Costi aggiuntivi oltre alla stampa: inserti filettati (M2–M8 in ottone o acciaio), NFC tag (per tracciabilità o interattività), calamite standard, magneti al neodimio (più potenti), colla cianoacrilica o epossidica, viti/bulloni di assemblaggio, imballaggio (scatola, pluriball, nastro).</div><div class="ex">Questi costi vengono aggiunti al totale DOPO l'applicazione di failure rate e manodopera, ma PRIMA del guadagno e IVA</div></div>
+  <div class="gitem"><div class="term">IVA (22%)</div><div class="def">Applicabile solo con Partita IVA italiana. Senza P.IVA, non applicarla. L'IVA non è ricavo: la incassi per conto dello Stato e la versi periodicamente. Il cliente paga IVA inclusa, il tuo ricavo è il netto.</div><div class="ex">Privato senza P.IVA → seleziona "Nessuna". Con P.IVA → seleziona 22%</div></div>
+</section>
+
+<!-- ══════════════ GUIDA ══════════════ -->
+<section id="guida">
+  <h1>Guida all'uso</h1>
+  <p class="subtitle">Come usare il calcolatore in pochi passi</p>
+
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-title">Passi principali</div>
+    <div class="steps">
+      <div class="step"><div class="stepn">1</div><div class="stept"><strong>Seleziona la stampante</strong> dal menu a tendina — consumo e valore vengono compilati automaticamente. Puoi sempre correggere i valori manualmente nella card "Costi operativi".</div></div>
+      <div class="step"><div class="stepn">2</div><div class="stept"><strong>Leggi i dati dallo slicer:</strong> in Bambu Studio / Orca Slicer trovi "Estimated time" (ore e minuti) e "Filament used" (grammi) dopo lo slicing. Inseriscili nei campi appositi.</div></div>
+      <div class="step"><div class="stepn">3</div><div class="stept"><strong>Imposta il prezzo del materiale</strong> (€/kg). Bobina standard PLA 1kg: 15-25€. Filamenti tecnici (ASA, PA, CF): 30-80€/kg. Resina standard: ~25-40€/kg.</div></div>
+      <div class="step"><div class="stepn">4</div><div class="stept"><strong>Regola failure rate e usura</strong> in base alla tua esperienza con quel materiale e quella geometria. Inizia con i valori predefiniti e affina nel tempo.</div></div>
+      <div class="step"><div class="stepn">5</div><div class="stept"><strong>Inserisci manodopera e guadagno separatamente.</strong> Manodopera = costo del tuo tempo operativo. Guadagno = profitto netto che vuoi ottenere.</div></div>
+      <div class="step"><div class="stepn">6</div><div class="stept"><strong>Aggiungi gli extra</strong> nella sezione accessori: inserisci quantità e prezzo unitario per inserti, NFC tag, magneti, viti, imballaggio, colla e altro.</div></div>
+      <div class="step"><div class="stepn">7</div><div class="stept"><strong>Leggi il prezzo finale</strong> nel riquadro verde in basso. Con IVA 22% se hai P.IVA, senza IVA se sei privato. Il tuo guadagno netto è evidenziato separatamente.</div></div>
+    </div>
+  </div>
+
+  <div class="guide-card">
+    <div class="gicon" style="background:var(--warnL)">⚠️</div>
+    <div class="gcontent"><h3>Non scendere mai sotto il costo vivo</h3><p>Il subtotale costi vivi (materiale + luce + ammortamento + usura) è il minimo assoluto. Anche per amici o test, ogni euro in meno è una perdita reale per la tua attività.</p></div>
+  </div>
+  <div class="guide-card">
+    <div class="gicon" style="background:var(--greenL)">📊</div>
+    <div class="gcontent"><h3>Usa il tab Grafico per presentare il preventivo</h3><p>La sezione Grafico mostra la ripartizione visiva dei costi — utile da mostrare al cliente per giustificare il prezzo e dimostrare professionalità.</p></div>
+  </div>
+  <div class="guide-card">
+    <div class="gicon" style="background:var(--accentL)">🔁</div>
+    <div class="gcontent"><h3>Funziona offline</h3><p>Salva questo file HTML sul desktop o sullo smartphone. Non richiede internet — tutti i calcoli e i grafici girano nel browser. Aprilo con Chrome, Firefox o Safari.</p></div>
+  </div>
+  <div class="guide-card">
+    <div class="gicon" style="background:var(--purpleL)">🧲</div>
+    <div class="gcontent"><h3>Differenza: calamita vs magnete al neodimio</h3><p>Le calamite standard (ferrite) costano ~0,05-0,20€ e offrono forza moderata. I magneti al neodimio (N35-N52) costano ~0,15-0,50€ ma hanno forza 5-10× maggiore a parità di dimensione. Per applicazioni che richiedono aggancio sicuro usa il neodimio.</p></div>
+  </div>
+</section>
+
+<footer>Calcolatore Stampa 3D Pro · Tariffe da <code>tariffe.json</code> · Nessun dato inviato · Aggiornato 2025</footer>
+
+<script>
+// ── PRINTER DB ──
+const PRINTERS = {};
+document.querySelectorAll('#printerSelect option').forEach(opt => {
+  PRINTERS[opt.value] = {
+    w: parseInt(opt.dataset.w),
+    p: parseInt(opt.dataset.p),
+    v: parseInt(opt.dataset.v),
+    t: opt.dataset.t,
+    name: opt.text.split('—')[0].trim()
+  };
+});
+
+function onPrinterChange() {
+  const sel = document.getElementById('printerSelect').value;
+  const pr = PRINTERS[sel];
+  if (!pr) return;
+  document.getElementById('watt').value = pr.w;
+  document.getElementById('costo_printer').value = pr.p;
+  document.getElementById('vita_utile').value = pr.v;
+  const bar = document.getElementById('printerInfoBar');
+  bar.innerHTML = `
+    <div class="pinfo">⚡ ${pr.w}W</div>
+    <div class="pinfo">💰 €${pr.p.toLocaleString('it-IT')}</div>
+    <div class="pinfo">⏱ ${pr.v.toLocaleString('it-IT')}h vita utile</div>
+    <div class="pinfo">${pr.t === 'MSLA' ? '🫧 Resina MSLA' : '🧵 FDM'}</div>
+  `;
+  calc();
+}
+
+function fmt(v) { return v.toFixed(2).replace('.', ',') + '€'; }
+
+// ── EXTRAS ──
+function getExtras() {
+  const ins = (parseFloat(document.getElementById('ex_ins_qty').value)||0) * (parseFloat(document.getElementById('ex_ins_price').value)||0);
+  const imb = parseFloat(document.getElementById('ex_imb_price').value)||0;
+  const nfc = (parseFloat(document.getElementById('ex_nfc_qty').value)||0) * (parseFloat(document.getElementById('ex_nfc_price').value)||0);
+  const cal = (parseFloat(document.getElementById('ex_cal_qty').value)||0) * (parseFloat(document.getElementById('ex_cal_price').value)||0);
+  const col = parseFloat(document.getElementById('ex_col_price').value)||0;
+  const vit = (parseFloat(document.getElementById('ex_vit_qty').value)||0) * (parseFloat(document.getElementById('ex_vit_price').value)||0);
+  const mag = (parseFloat(document.getElementById('ex_mag_qty').value)||0) * (parseFloat(document.getElementById('ex_mag_price').value)||0);
+  const alt = parseFloat(document.getElementById('ex_alt_price').value)||0;
+  const spe = parseFloat(document.getElementById('ex_spe_price').value)||0;
+
+  document.getElementById('ex_ins_tot').textContent = fmt(ins);
+  document.getElementById('ex_imb_tot').textContent = fmt(imb);
+  document.getElementById('ex_nfc_tot').textContent = fmt(nfc);
+  document.getElementById('ex_cal_tot').textContent = fmt(cal);
+  document.getElementById('ex_col_tot').textContent = fmt(col);
+  document.getElementById('ex_vit_tot').textContent = fmt(vit);
+  document.getElementById('ex_mag_tot').textContent = fmt(mag);
+  document.getElementById('ex_alt_tot').textContent = fmt(alt);
+  document.getElementById('ex_spe_tot').textContent = fmt(spe);
+
+  const total = ins + imb + nfc + cal + col + vit + mag + alt + spe;
+  document.getElementById('extras_total').textContent = fmt(total);
+  return { ins, imb, nfc, cal, col, vit, mag, alt, spe, total };
+}
+
+let pieChart, barChart;
+
+function calc() {
+  const ore = parseFloat(document.getElementById('ore').value)||0;
+  const minuti = parseFloat(document.getElementById('minuti').value)||0;
+  const grammi = parseFloat(document.getElementById('grammi').value)||0;
+  const prezzo_kg = parseFloat(document.getElementById('prezzo_kg').value)||0;
+  const watt = parseFloat(document.getElementById('watt').value)||0;
+  const prezzo_kwh = parseFloat(document.getElementById('prezzo_kwh').value)||0;
+  const costo_printer = parseFloat(document.getElementById('costo_printer').value)||0;
+  const vita_utile = parseFloat(document.getElementById('vita_utile').value)||1;
+  const failure_rate = parseFloat(document.getElementById('failure_rate').value)/100;
+  const usura = parseFloat(document.getElementById('usura').value)/100;
+  const manodopera = parseFloat(document.getElementById('manodopera').value)/100;
+  const guadagno_perc = parseFloat(document.getElementById('guadagno').value)/100;
+  const iva = parseFloat(document.getElementById('iva').value)/100;
+
+  document.getElementById('fr_v').textContent = Math.round(failure_rate*100)+'%';
+  document.getElementById('us_v').textContent = Math.round(usura*100)+'%';
+  document.getElementById('mn_v').textContent = Math.round(manodopera*100)+'%';
+  document.getElementById('mg_v').textContent = Math.round(guadagno_perc*100)+'%';
+
+  const ore_tot = ore + minuti/60;
+  const mat = (grammi/1000)*prezzo_kg;
+  const luce = (watt/1000)*ore_tot*prezzo_kwh;
+  const ammort = (costo_printer/vita_utile)*ore_tot;
+  const c_usura = (mat+luce+ammort)*usura;
+  const sub1 = mat+luce+ammort+c_usura;
+  const c_fail = sub1*failure_rate;
+  const sub2 = sub1+c_fail;
+  const c_mano = sub2*manodopera;
+  const sub3 = sub2+c_mano;
+
+  const extras = getExtras();
+  const sub4 = sub3 + extras.total;
+
+  const c_guad = sub4*guadagno_perc;
+  const netto = sub4+c_guad;
+  const finale = iva>0 ? netto*(1+iva) : netto;
+
+  window._lastData = { mat, luce, ammort, c_usura, c_fail, c_mano, extras: extras.total, c_guad, sub1, sub2, sub3, sub4, netto, finale, iva, ore_tot, grammi, watt, failure_rate, usura, manodopera, guadagno_perc };
+
+  // METRICS
+  document.getElementById('metrics').innerHTML = `
+    <div class="metric"><div class="lbl">Materiale</div><div class="val">${fmt(mat)}</div></div>
+    <div class="metric"><div class="lbl">Elettricità</div><div class="val">${fmt(luce)}</div></div>
+    <div class="metric"><div class="lbl">Ammortamento</div><div class="val">${fmt(ammort)}</div></div>
+    <div class="metric"><div class="lbl">Extra &amp; accessori</div><div class="val" style="color:var(--accent)">${fmt(extras.total)}</div></div>
+  `;
+
+  // BREAKDOWN
+  const extrasLine = extras.total > 0
+    ? `<div class="brow"><span class="lbl">Extra &amp; accessori <span class="tag ti">+</span></span><span class="amt" style="color:var(--accent)">+${fmt(extras.total)}</span></div>` : '';
+
+  document.getElementById('breakdown').innerHTML = `
+    <div class="card-title">Dettaglio costi</div>
+    <div class="brow"><span class="lbl">Materiale (${grammi}g)</span><span class="amt">${fmt(mat)}</span></div>
+    <div class="brow"><span class="lbl">Elettricità (${ore_tot.toFixed(2)}h × ${watt}W)</span><span class="amt">${fmt(luce)}</span></div>
+    <div class="brow"><span class="lbl">Ammortamento stampante</span><span class="amt">${fmt(ammort)}</span></div>
+    <div class="brow"><span class="lbl">Usura consumabili (+${Math.round(usura*100)}%)</span><span class="amt">+${fmt(c_usura)}</span></div>
+    <hr class="div">
+    <div class="brow"><span class="lbl">Subtotale costi vivi</span><span class="amt">${fmt(sub1)}</span></div>
+    <div class="brow"><span class="lbl">Failure rate (+${Math.round(failure_rate*100)}%) <span class="tag tw">rischio</span></span><span class="amt">+${fmt(c_fail)}</span></div>
+    <div class="brow"><span class="lbl">Manodopera (+${Math.round(manodopera*100)}%)</span><span class="amt">+${fmt(c_mano)}</span></div>
+    ${extrasLine}
+    <hr class="div">
+    <div class="brow tot"><span class="lbl">Base per guadagno</span><span class="amt">${fmt(sub4)}</span></div>
+    <div class="brow tot"><span class="lbl">Guadagno (+${Math.round(guadagno_perc*100)}%) <span class="tag tg">profitto</span></span><span class="amt">+${fmt(c_guad)}</span></div>
+    ${iva>0 ? `<div class="brow tot"><span class="lbl">IVA 22%</span><span class="amt">+${fmt(netto*iva)}</span></div>` : ''}
+  `;
+
+  document.getElementById('totalbox').innerHTML = `
+    <div class="tl">Prezzo consigliato di vendita</div>
+    <div class="tv">${fmt(finale)}</div>
+    <div class="ts">${iva>0?'IVA 22% inclusa':'IVA esclusa'} · guadagno ${Math.round(guadagno_perc*100)}% · failure ${Math.round(failure_rate*100)}%</div>
+  `;
+  document.getElementById('guadbox').innerHTML = `
+    <span>Il tuo guadagno netto <span class="tag tg">profitto</span></span>
+    <span>${fmt(c_guad)}</span>
+  `;
+}
+
+function showSec(id, el) {
+  document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (el) el.classList.add('active');
+  if (id === 'chart') updateCharts();
+}
+
+function updateCharts() {
+  const d = window._lastData;
+  if (!d) return;
+
+  const hasExtras = d.extras > 0;
+  const labels = ['Materiale', 'Elettricità', 'Ammortamento', 'Usura', 'Failure rate', 'Manodopera', ...(hasExtras?['Extra & accessori']:[]), 'Guadagno'];
+  const values = [d.mat, d.luce, d.ammort, d.c_usura, d.c_fail, d.c_mano, ...(hasExtras?[d.extras]:[]), d.c_guad];
+  const colors = ['#0D9488','#14B8A6','#5EEAD4','#FCD34D','#F97316','#8B5CF6',...(hasExtras?['#EC4899']:[]),'#10B981'];
+
+  document.getElementById('chart-metrics').innerHTML = `
+    <div class="metric"><div class="lbl">Totale costi (senza guadagno)</div><div class="val">${fmt(d.sub4)}</div></div>
+    <div class="metric"><div class="lbl">Prezzo di vendita</div><div class="val">${fmt(d.finale)}</div></div>
+  `;
+
+  if (pieChart) pieChart.destroy();
+  pieChart = new Chart(document.getElementById('pieChart'), {
+    type: 'doughnut',
+    data: { labels, datasets: [{ data: values.map(v=>+v.toFixed(2)), backgroundColor: colors, borderWidth: 2, borderColor: '#fff' }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'right', labels: { font: { size: 12 }, boxWidth: 13, padding: 12 } },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed.toFixed(2).replace('.',',')}€` } }
+      }
+    }
+  });
+
+  if (barChart) barChart.destroy();
+  barChart = new Chart(document.getElementById('barChart'), {
+    type: 'bar',
+    data: { labels, datasets: [{ data: values.map(v=>+v.toFixed(2)), backgroundColor: colors, borderRadius: 6, borderSkipped: false }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.y.toFixed(2).replace('.',',')}€` } } },
+      scales: {
+        y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { callback: v => v.toFixed(2).replace('.',',')+'€', font: { size: 11 } } },
+        x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+      }
+    }
+  });
+}
+
+// ── LISTENERS ──
+['ore','minuti','grammi','prezzo_kg','watt','prezzo_kwh','costo_printer','vita_utile','failure_rate','usura','manodopera','guadagno','iva'].forEach(id => {
+  document.getElementById(id).addEventListener('input', calc);
+});
+
+// ── FORNITORI ENERGIA ──
+// Modifica TARIFFE_URL con il tuo URL raw GitHub dopo il deploy
+const TARIFFE_URL = 'tariffe.json';
+
+let _fornitori = [];
+
+function buildFornitoreSelect(fornitori) {
+  const sel = document.getElementById('fornitoreSelect');
+  sel.innerHTML = '';
+  const gruppi = {};
+  fornitori.forEach(f => {
+    if (!gruppi[f.gruppo]) gruppi[f.gruppo] = [];
+    gruppi[f.gruppo].push(f);
+  });
+  Object.entries(gruppi).forEach(([gruppo, items]) => {
+    const og = document.createElement('optgroup');
+    og.label = '── ' + gruppo + ' ──';
+    items.forEach(f => {
+      const opt = document.createElement('option');
+      opt.value = f.id;
+      opt.textContent = f.nome + ' — ' + f.prezzo_kwh.toFixed(4).replace('.', ',') + ' €/kWh';
+      og.appendChild(opt);
+    });
+    sel.appendChild(og);
+  });
+  // default: seleziona NeN monoraria se esiste, altrimenti primo
+  const defaultId = 'nen_monoraria';
+  const def = fornitori.find(f => f.id === defaultId);
+  if (def) sel.value = defaultId;
+  onFornitoreChange();
+}
+
+function onFornitoreChange() {
+  const sel = document.getElementById('fornitoreSelect');
+  const id = sel.value;
+  const f = _fornitori.find(x => x.id === id);
+  if (!f) return;
+
+  const kwh = document.getElementById('prezzo_kwh');
+  const info = document.getElementById('fornitore_info');
+
+  kwh.value = f.prezzo_kwh.toFixed(4);
+
+  if (f.id === 'custom') {
+    info.style.display = 'none';
+    kwh.removeAttribute('readonly');
+    kwh.style.borderColor = '';
+  } else {
+    let txt = '<strong>' + f.tipo + '</strong>';
+    if (f.note) txt += ' · ' + f.note;
+    if (f.url) txt += ' · <a href="' + f.url + '" target="_blank" style="color:var(--accentD)">sito ufficiale ↗</a>';
+    info.innerHTML = txt;
+    info.style.display = 'block';
+    kwh.removeAttribute('readonly');
+  }
+  calc();
+}
+
+async function loadTariffe() {
+  const status = document.getElementById('tariffe_status');
+  try {
+    const res = await fetch(TARIFFE_URL + '?t=' + Date.now());
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    _fornitori = data.fornitori;
+    const d = new Date(data.aggiornato);
+    const dateStr = d.toLocaleDateString('it-IT', { day: '2-digit', month: 'long', year: 'numeric' });
+    status.textContent = '✅ aggiornato al ' + dateStr;
+    status.style.color = 'var(--green)';
+    buildFornitoreSelect(_fornitori);
+  } catch (e) {
+    // Fallback offline: prezzi di default
+    status.textContent = '⚠️ offline — prezzi indicativi';
+    status.style.color = 'var(--warn)';
+    _fornitori = [
+      { id:'arera',      nome:'ARERA — Riferimento Q1 2025',  gruppo:'Tutela',      prezzo_kwh:0.2184, tipo:'Variabile trimestrale', note:'Prezzo tutelato ARERA, aggiorna online.',      url:'https://www.arera.it' },
+      { id:'nen_mono',   nome:'NeN — Monoraria (stima)',       gruppo:'NeN (A2A)',   prezzo_kwh:0.2200, tipo:'Variabile mensile',      note:'Stima offline. Aggiorna il JSON per valori reali.', url:'https://www.nen.it' },
+      { id:'enel_flat',  nome:'Enel — Luce Flat (stima)',      gruppo:'Enel',        prezzo_kwh:0.2350, tipo:'Fisso 12 mesi',          note:'Stima offline.',                                   url:'https://www.enelenergia.it' },
+      { id:'eni_sicura', nome:'Eni Plenitude — Sicura (stima)',gruppo:'Eni',         prezzo_kwh:0.2290, tipo:'Fisso 12 mesi',          note:'Stima offline.',                                   url:'https://www.plenitude.com' },
+      { id:'custom',     nome:'✏️ Inserisci manualmente',      gruppo:'Personalizzato', prezzo_kwh:0.24, tipo:'Personalizzato',         note:'Inserisci il tuo prezzo reale dalla bolletta.',    url:'' },
+    ];
+    buildFornitoreSelect(_fornitori);
+  }
+}
+
+// Init
+onPrinterChange();
+loadTariffe();
+</script>
+</body>
+</html>
