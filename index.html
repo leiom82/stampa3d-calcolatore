@@ -133,7 +133,7 @@ hr.div{border:none;border-top:0.5px solid var(--border);margin:7px 0}
 .stepn{display:inline-flex;width:20px;height:20px;background:var(--accent);color:#fff;border-radius:50%;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0;margin-top:2px}
 .stept{font-size:13px;line-height:1.6;color:var(--text2)}
 
-footer{text-align:center;font-size:11px;color:var(--text3);padding:1.5rem;border-top:0.5px solid var(--border);margin-top:1.5rem}
+footer{text-align:center;font-size:11px;color:var(--text3);padding:2rem 1.5rem;border-top:0.5px solid var(--border);margin-top:1.5rem}
 </style>
 </head>
 <body>
@@ -483,7 +483,18 @@ footer{text-align:center;font-size:11px;color:var(--text3);padding:1.5rem;border
   </div>
 </section>
 
-<footer>Calcolatore Stampa 3D Pro · Tariffe da <code>tariffe.json</code> · Nessun dato inviato · Aggiornato 2025</footer>
+<footer>
+  <div style="margin-bottom:16px">
+    <a href="https://ko-fi.com/otaku3dlab" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:#FF5E5B;color:white;text-decoration:none;padding:10px 20px;border-radius:10px;font-size:14px;font-weight:700;transition:opacity .2s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M23.881 8.948c-.773-4.085-4.859-4.593-4.859-4.593H.723c-.604 0-.679.798-.679.798s-.082 7.324-.022 11.822c.164 2.424 2.586 2.672 2.586 2.672s8.267-.023 11.966-.049c2.438-.426 2.683-2.566 2.658-3.734 4.352.24 7.422-2.831 6.649-6.916zm-11.062 3.511c-1.246 1.453-4.011 3.976-4.011 3.976s-.121.119-.31.023c-.076-.057-.108-.09-.108-.09-.443-.441-3.368-3.049-4.034-3.954-.709-.965-1.041-2.7-.091-3.71.951-1.01 3.005-1.086 4.363.407 0 0 1.565-1.782 3.468-.963 1.904.82 1.832 3.011.723 4.311zm6.173.478c-.928.116-1.682.028-1.682.028V7.284h1.77s1.971.551 1.971 2.638c0 1.913-.985 2.667-2.059 3.015z"/></svg>
+      Offrimi un caffè su Ko-fi
+    </a>
+  </div>
+  <div style="margin-bottom:10px">
+    <a href="https://www.otaku3dlab.it" target="_blank" style="color:var(--accent);text-decoration:none;font-size:14px;font-weight:600">🌐 www.otaku3dlab.it</a>
+  </div>
+  <div style="font-size:11px;color:var(--text3)">Calcolatore Stampa 3D Pro · OTAKU3DLAB · Tariffe da <code>tariffe.json</code> · Nessun dato inviato</div>
+</footer>
 
 <script>
 // ── PRINTER DB ──
@@ -683,7 +694,7 @@ function updateCharts() {
 
 // ── FORNITORI ENERGIA ──
 // Modifica TARIFFE_URL con il tuo URL raw GitHub dopo il deploy
-const TARIFFE_URL = 'https://github.com/leiom82/stampa3d-calcolatore/blob/main/tariffe.json';
+const TARIFFE_URL = 'tariffe.json';
 
 let _fornitori = [];
 
