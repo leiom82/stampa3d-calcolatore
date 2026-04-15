@@ -550,8 +550,8 @@ function getExtras() {
   document.getElementById('ex_alt_tot').textContent = fmt(alt);
   document.getElementById('ex_spe_tot').textContent = fmt(spe);
 
-  const total = ins + imb + nfc + cal + col + vit + mag + alt + spe;
-  document.getElementById('extras_total').textContent = fmt(total);
+  const total = ins + imb + nfc + cal + col + vit + mag + alt;
+  document.getElementById('extras_total').textContent = fmt(total + spe);
   return { ins, imb, nfc, cal, col, vit, mag, alt, spe, total };
 }
 
@@ -589,13 +589,14 @@ function calc() {
   const sub3 = sub2+c_mano;
 
   const extras = getExtras();
-  const sub4 = sub3 + extras.total;
+  const sub4 = sub3 + extras.total; // spedizione ESCLUSA dalla base guadagno
 
   const c_guad = sub4*guadagno_perc;
   const netto = sub4+c_guad;
-  const finale = iva>0 ? netto*(1+iva) : netto;
+  const con_iva = iva>0 ? netto*(1+iva) : netto;
+  const finale = con_iva + extras.spe; // spedizione aggiunta DOPO tutto
 
-  window._lastData = { mat, luce, ammort, c_usura, c_fail, c_mano, extras: extras.total, c_guad, sub1, sub2, sub3, sub4, netto, finale, iva, ore_tot, grammi, watt, failure_rate, usura, manodopera, guadagno_perc };
+  window._lastData = { mat, luce, ammort, c_usura, c_fail, c_mano, extras: extras.total, spe: extras.spe, c_guad, sub1, sub2, sub3, sub4, netto, con_iva, finale, iva, ore_tot, grammi, watt, failure_rate, usura, manodopera, guadagno_perc };
 
   // METRICS
   document.getElementById('metrics').innerHTML = `
@@ -608,6 +609,8 @@ function calc() {
   // BREAKDOWN
   const extrasLine = extras.total > 0
     ? `<div class="brow"><span class="lbl">Extra &amp; accessori <span class="tag ti">+</span></span><span class="amt" style="color:var(--accent)">+${fmt(extras.total)}</span></div>` : '';
+  const speLine = extras.spe > 0
+    ? `<div class="brow tot" style="color:var(--text2)"><span class="lbl">Spedizione <span class="tag ti">separata</span></span><span class="amt">+${fmt(extras.spe)}</span></div>` : '';
 
   document.getElementById('breakdown').innerHTML = `
     <div class="card-title">Dettaglio costi</div>
@@ -624,11 +627,18 @@ function calc() {
     <div class="brow tot"><span class="lbl">Base per guadagno</span><span class="amt">${fmt(sub4)}</span></div>
     <div class="brow tot"><span class="lbl">Guadagno (+${Math.round(guadagno_perc*100)}%) <span class="tag tg">profitto</span></span><span class="amt">+${fmt(c_guad)}</span></div>
     ${iva>0 ? `<div class="brow tot"><span class="lbl">IVA 22%</span><span class="amt">+${fmt(netto*iva)}</span></div>` : ''}
+    ${speLine}
   `;
 
   document.getElementById('totalbox').innerHTML = `
-    <div class="tl">Prezzo consigliato di vendita</div>
-    <div class="tv">${fmt(finale)}</div>
+    <div class="tl">Prezzo di vendita (senza spedizione)</div>
+    <div class="tv">${fmt(con_iva)}</div>
+    ${extras.spe > 0 ? `<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(13,148,136,.2)">
+      <div class="tl">+ Spedizione</div>
+      <div style="font-size:22px;font-weight:800;color:var(--accentD)">${fmt(extras.spe)}</div>
+      <div class="tl" style="margin-top:4px">= Totale cliente</div>
+      <div style="font-size:30px;font-weight:800;color:var(--accentD)">${fmt(finale)}</div>
+    </div>` : ''}
     <div class="ts">${iva>0?'IVA 22% inclusa':'IVA esclusa'} · guadagno ${Math.round(guadagno_perc*100)}% · failure ${Math.round(failure_rate*100)}%</div>
   `;
   document.getElementById('guadbox').innerHTML = `
