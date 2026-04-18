@@ -407,6 +407,29 @@ footer{text-align:center;font-size:11px;color:var(--text3);padding:2rem 1.5rem;b
   </div>
 
   <div id="metrics" class="g4" style="margin-bottom:14px"></div>
+
+  <!-- MODELLAZIONE 3D -->
+  <div class="card" style="margin-bottom:14px;border:0.5px solid rgba(124,58,237,.25)">
+    <div class="card-title" style="color:var(--purple)">Modellazione 3D <span style="font-size:10px;font-weight:600;background:var(--purpleL);color:var(--purple);padding:2px 7px;border-radius:6px;margin-left:6px;text-transform:none;letter-spacing:0">voce esterna — non incide su guadagno e manodopera</span></div>
+    <div class="g2">
+      <div>
+        <div class="row"><label>Ore di modellazione</label><input type="number" id="mod_ore" value="0" min="0" step="0.5" oninput="calc()"></div>
+        <div class="row"><label>Minuti</label><input type="number" id="mod_min" value="0" min="0" max="59" step="5" oninput="calc()"></div>
+        <div class="row"><label>Tariffa oraria (€/h)</label><input type="number" id="mod_tariffa" value="30" min="0" step="1" oninput="calc()"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;justify-content:center;gap:10px">
+        <div class="metric">
+          <div class="lbl">Tempo totale modellazione</div>
+          <div class="val" id="mod_tempo_display">0h 00min</div>
+        </div>
+        <div class="metric" style="background:var(--purpleL)">
+          <div class="lbl" style="color:var(--purple)">Costo modellazione</div>
+          <div class="val" id="mod_tot_display" style="color:var(--purple)">0,00€</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="g2">
     <div class="card" id="breakdown"></div>
     <div>
@@ -589,14 +612,26 @@ function calc() {
   const sub3 = sub2+c_mano;
 
   const extras = getExtras();
-  const sub4 = sub3 + extras.total; // spedizione ESCLUSA dalla base guadagno
+  const sub4 = sub3 + extras.total; // spedizione e modellazione ESCLUSE dalla base guadagno
 
   const c_guad = sub4*guadagno_perc;
   const netto = sub4+c_guad;
   const con_iva = iva>0 ? netto*(1+iva) : netto;
-  const finale = con_iva + extras.spe; // spedizione aggiunta DOPO tutto
 
-  window._lastData = { mat, luce, ammort, c_usura, c_fail, c_mano, extras: extras.total, spe: extras.spe, c_guad, sub1, sub2, sub3, sub4, netto, con_iva, finale, iva, ore_tot, grammi, watt, failure_rate, usura, manodopera, guadagno_perc };
+  // Modellazione 3D — voce esterna
+  const mod_ore = parseFloat(document.getElementById('mod_ore').value)||0;
+  const mod_min = parseFloat(document.getElementById('mod_min').value)||0;
+  const mod_tariffa = parseFloat(document.getElementById('mod_tariffa').value)||0;
+  const mod_tot_ore = mod_ore + mod_min/60;
+  const mod_costo = mod_tot_ore * mod_tariffa;
+  const mod_ore_int = Math.floor(mod_tot_ore);
+  const mod_min_int = Math.round((mod_tot_ore - mod_ore_int)*60);
+  document.getElementById('mod_tempo_display').textContent = `${mod_ore_int}h ${String(mod_min_int).padStart(2,'0')}min`;
+  document.getElementById('mod_tot_display').textContent = fmt(mod_costo);
+
+  const finale = con_iva + extras.spe + mod_costo;
+
+  window._lastData = { mat, luce, ammort, c_usura, c_fail, c_mano, extras: extras.total, spe: extras.spe, mod_costo, c_guad, sub1, sub2, sub3, sub4, netto, con_iva, finale, iva, ore_tot, grammi, watt, failure_rate, usura, manodopera, guadagno_perc };
 
   // METRICS
   document.getElementById('metrics').innerHTML = `
@@ -631,15 +666,18 @@ function calc() {
   `;
 
   document.getElementById('totalbox').innerHTML = `
-    <div class="tl">Prezzo di vendita (senza spedizione)</div>
+    <div class="tl">Prezzo stampa (senza voci esterne)</div>
     <div class="tv">${fmt(con_iva)}</div>
-    ${extras.spe > 0 ? `<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(13,148,136,.2)">
-      <div class="tl">+ Spedizione</div>
-      <div style="font-size:22px;font-weight:800;color:var(--accentD)">${fmt(extras.spe)}</div>
-      <div class="tl" style="margin-top:4px">= Totale cliente</div>
-      <div style="font-size:30px;font-weight:800;color:var(--accentD)">${fmt(finale)}</div>
-    </div>` : ''}
     <div class="ts">${iva>0?'IVA 22% inclusa':'IVA esclusa'} · guadagno ${Math.round(guadagno_perc*100)}% · failure ${Math.round(failure_rate*100)}%</div>
+    ${(mod_costo > 0 || extras.spe > 0) ? `
+    <div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(13,148,136,.2);text-align:left">
+      ${mod_costo > 0 ? `<div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0;color:var(--accentD)"><span>+ Modellazione 3D</span><span style="font-weight:700">${fmt(mod_costo)}</span></div>` : ''}
+      ${extras.spe > 0 ? `<div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0;color:var(--accentD)"><span>+ Spedizione</span><span style="font-weight:700">${fmt(extras.spe)}</span></div>` : ''}
+      <div style="display:flex;justify-content:space-between;font-size:15px;padding:8px 0 0;border-top:0.5px solid rgba(13,148,136,.2);margin-top:4px">
+        <span style="font-weight:700;color:var(--accentD)">= Totale cliente</span>
+        <span style="font-weight:800;font-size:18px;color:var(--accentD)">${fmt(finale)}</span>
+      </div>
+    </div>` : ''}
   `;
   document.getElementById('guadbox').innerHTML = `
     <span>Il tuo guadagno netto <span class="tag tg">profitto</span></span>
