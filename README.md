@@ -20,7 +20,7 @@ Inserisci i dati dallo slicer, seleziona la tua stampante e il tuo fornitore ene
 
 ## 🚀 Usalo subito
 
-👉 **[Apri il calcolatore](https://otaku3dlab.github.io/stampa3d-calcolatore/)**
+👉 **[Apri il calcolatore](https://leiom82.github.io/stampa3d-calcolatore/)**
 
 ---
 
