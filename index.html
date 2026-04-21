@@ -17,7 +17,25 @@
   --red:#dc2626;--redL:#fee2e2;
   --radius:10px;--radiusLg:14px;
 }
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+body.dark{
+  --bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.15);
+  --text:#e8e8e6;--text2:#9ca3b0;--text3:#5a6070;
+  --accent:#0D9488;--accentD:#14b8a6;--accentL:#0a2e2b;
+  --warn:#f59e0b;--warnL:#2a1f08;--warnD:#fcd34d;
+  --green:#10b981;--greenL:#052e1a;--greenD:#6ee7b7;
+  --purple:#a78bfa;--purpleL:#1e1640;
+  --red:#f87171;--redL:#2a0e0e;
+}
+.theme-btn{margin-left:auto;flex-shrink:0;background:none;border:0.5px solid var(--border2);border-radius:20px;padding:5px 12px;font-size:12px;color:var(--text2);cursor:pointer;display:flex;align-items:center;gap:5px;transition:background .2s,color .2s}
+.theme-btn:hover{background:var(--surface2);color:var(--text)}
+@media print{
+  nav,footer,.theme-btn,#sec-calc,#sec-chart,#sec-glossario,#sec-guida{display:none!important}
+  #preventivo{display:block!important;padding:0!important}
+  .print-hide{display:none!important}
+  .print-show{display:block!important}
+  body{background:white!important;color:black!important}
+  .prev-card{box-shadow:none!important;border:1px solid #ddd!important}
+}
 
 /* NAV */
 nav{background:var(--surface);border-bottom:0.5px solid var(--border);padding:0 1.5rem;display:flex;align-items:center;gap:0;position:sticky;top:0;z-index:100;overflow-x:auto}
@@ -144,6 +162,8 @@ footer{text-align:center;font-size:11px;color:var(--text3);padding:2rem 1.5rem;b
   <a href="#" onclick="showSec('chart',this)">Grafico</a>
   <a href="#" onclick="showSec('glossario',this)">Voci spiegate</a>
   <a href="#" onclick="showSec('guida',this)">Guida</a>
+  <a href="#" onclick="showSec('preventivo',this)">📄 Preventivo</a>
+  <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">🌙 Scuro</button>
 </nav>
 
 <!-- ══════════════ CALCOLATORE ══════════════ -->
@@ -506,6 +526,40 @@ footer{text-align:center;font-size:11px;color:var(--text3);padding:2rem 1.5rem;b
   </div>
 </section>
 
+<!-- ══════════════ PREVENTIVO ══════════════ -->
+<section id="preventivo">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:1.4rem">
+    <div>
+      <h1>Preventivo</h1>
+      <p class="subtitle" style="margin-bottom:0">Riepilogo completo di tutte le voci — pronto da stampare o salvare in PDF.</p>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button onclick="window.print()" style="display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:white;border:none;border-radius:var(--radius);padding:9px 16px;font-size:13px;font-weight:700;cursor:pointer">
+        🖨️ Stampa
+      </button>
+      <button onclick="savePDF()" style="display:inline-flex;align-items:center;gap:6px;background:var(--surface);color:var(--text);border:0.5px solid var(--border2);border-radius:var(--radius);padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer">
+        📥 Salva PDF
+      </button>
+    </div>
+  </div>
+
+  <div id="prev-content">
+    <div class="card prev-card" style="margin-bottom:14px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:12px;border-bottom:0.5px solid var(--border)">
+        <div>
+          <div style="font-size:20px;font-weight:800;color:var(--accent)">OTAKU3DLAB</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:2px">www.otaku3dlab.it</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:12px;color:var(--text3)" id="prev-data">—</div>
+          <div style="font-size:11px;color:var(--text3)" id="prev-printer-label">—</div>
+        </div>
+      </div>
+      <div id="prev-body" style="font-size:13px"></div>
+    </div>
+  </div>
+</section>
+
 <footer>
   <div style="margin-bottom:16px">
     <a href="https://ko-fi.com/otaku3dlab" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:#FF5E5B;color:white;text-decoration:none;padding:10px 20px;border-radius:10px;font-size:14px;font-weight:700;transition:opacity .2s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
@@ -685,14 +739,6 @@ function calc() {
   `;
 }
 
-function showSec(id, el) {
-  document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  if (el) el.classList.add('active');
-  if (id === 'chart') updateCharts();
-}
-
 function updateCharts() {
   const d = window._lastData;
   if (!d) return;
@@ -828,6 +874,125 @@ async function loadTariffe() {
 // Init
 onPrinterChange();
 loadTariffe();
+
+// ── TEMA CHIARO / SCURO ──
+function toggleTheme() {
+  const dark = document.body.classList.toggle('dark');
+  document.getElementById('themeBtn').textContent = dark ? '☀️ Chiaro' : '🌙 Scuro';
+  localStorage.setItem('tema', dark ? 'dark' : 'light');
+}
+(function(){
+  if (localStorage.getItem('tema') === 'dark') {
+    document.body.classList.add('dark');
+    document.getElementById('themeBtn').textContent = '☀️ Chiaro';
+  }
+})();
+
+// ── PREVENTIVO ──
+function buildPreventivo() {
+  const d = window._lastData;
+  if (!d) return;
+
+  const oggi = new Date().toLocaleDateString('it-IT', { day:'2-digit', month:'long', year:'numeric' });
+  document.getElementById('prev-data').textContent = 'Data: ' + oggi;
+
+  const printerSel = document.getElementById('printerSelect');
+  const printerName = printerSel.options[printerSel.selectedIndex]?.text.split('—')[0].trim() || '—';
+  const fornitoreEl = document.getElementById('fornitoreSelect');
+  const fornitoreName = fornitoreEl.options[fornitoreEl.selectedIndex]?.text.split('—')[0].trim() || '—';
+  document.getElementById('prev-printer-label').textContent = printerName + ' · ' + fornitoreName;
+
+  const iva = d.iva > 0;
+  const hasExtras = d.extras > 0;
+  const hasSpe = d.spe > 0;
+  const hasMod = d.mod_costo > 0;
+
+  const fmtR = (label, val, color, tag) => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:0.5px solid var(--border)">
+      <span style="color:var(--text2)">${label}${tag ? ` <span style="font-size:10px;font-weight:700;padding:1px 6px;border-radius:4px;background:${tag.bg};color:${tag.col}">${tag.txt}</span>` : ''}</span>
+      <span style="font-weight:700;color:${color||'var(--text)'}">${fmt(val)}</span>
+    </div>`;
+
+  const fmtSep = (label) => `<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);padding:12px 0 4px">${label}</div>`;
+
+  const ore_h = Math.floor(d.ore_tot);
+  const ore_m = Math.round((d.ore_tot - ore_h) * 60);
+
+  let html = '';
+
+  html += fmtSep('Dati stampa');
+  html += fmtR(`Materiale (${d.grammi}g)`, d.mat);
+  html += fmtR(`Elettricità (${ore_h}h ${String(ore_m).padStart(2,'0')}min · ${d.watt}W)`, d.luce);
+  html += fmtR('Ammortamento stampante', d.ammort);
+  html += fmtR(`Usura consumabili (+${Math.round(d.usura*100)}%)`, d.c_usura);
+
+  html += fmtSep('Rischio & lavoro');
+  html += fmtR(`Failure rate (+${Math.round(d.failure_rate*100)}%)`, d.c_fail, 'var(--warn)', {bg:'var(--warnL)',col:'var(--warnD)',txt:'rischio'});
+  html += fmtR(`Manodopera (+${Math.round(d.manodopera*100)}%)`, d.c_mano, null, {bg:'var(--purpleL)',col:'var(--purple)',txt:'lavoro'});
+
+  if (hasExtras) {
+    html += fmtSep('Extra & accessori');
+    const ids = ['ins','imb','nfc','cal','col','vit','mag','alt'];
+    const labels = ['Inserti filettati','Imballaggio','NFC Tag','Calamite','Colla','Viti / bulloni','Magneti neodimio','Altro'];
+    ids.forEach((id, i) => {
+      const el = document.getElementById('ex_' + id + (id === 'imb' || id === 'col' || id === 'alt' ? '_price' : '_qty'));
+      const val = id === 'imb' || id === 'col' || id === 'alt'
+        ? (parseFloat(document.getElementById('ex_'+id+'_price').value)||0)
+        : (parseFloat(document.getElementById('ex_'+id+'_qty').value)||0) * (parseFloat(document.getElementById('ex_'+id+'_price').value)||0);
+      if (val > 0) html += fmtR(labels[i], val, 'var(--accent)');
+    });
+  }
+
+  html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:0.5px solid var(--border);margin-top:4px">
+    <span style="font-weight:700;color:var(--text)">Base per guadagno</span>
+    <span style="font-weight:700;color:var(--text)">${fmt(d.sub4)}</span>
+  </div>`;
+
+  html += fmtSep('Guadagno & fiscale');
+  html += fmtR(`Il tuo guadagno (+${Math.round(d.guadagno_perc*100)}%)`, d.c_guad, 'var(--green)', {bg:'var(--greenL)',col:'var(--greenD)',txt:'profitto'});
+  if (iva) html += fmtR('IVA 22%', d.netto * d.iva);
+
+  html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:0.5px solid var(--border);background:var(--accentL);margin:8px -4px 0;padding-left:8px;padding-right:8px;border-radius:var(--radius)">
+    <span style="font-weight:700;font-size:14px;color:var(--accentD)">Prezzo stampa</span>
+    <span style="font-weight:800;font-size:16px;color:var(--accentD)">${fmt(d.con_iva)}</span>
+  </div>`;
+
+  if (hasMod || hasSpe) {
+    html += fmtSep('Voci esterne');
+    if (hasMod) {
+      const mod_ore = parseFloat(document.getElementById('mod_ore').value)||0;
+      const mod_min = parseFloat(document.getElementById('mod_min').value)||0;
+      const mod_tariffa = parseFloat(document.getElementById('mod_tariffa').value)||0;
+      html += fmtR(`Modellazione 3D (${mod_ore}h ${String(mod_min).padStart(2,'0')}min · ${mod_tariffa}€/h)`, d.mod_costo, 'var(--purple)', {bg:'var(--purpleL)',col:'var(--purple)',txt:'esterna'});
+    }
+    if (hasSpe) html += fmtR('Spedizione', d.spe, 'var(--accent)', {bg:'var(--accentL)',col:'var(--accentD)',txt:'esterna'});
+  }
+
+  html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 8px;background:var(--accent);border-radius:var(--radius);margin-top:12px">
+    <span style="font-weight:800;font-size:15px;color:white">TOTALE CLIENTE</span>
+    <span style="font-weight:800;font-size:22px;color:white">${fmt(d.finale)}</span>
+  </div>`;
+
+  html += `<div style="margin-top:10px;font-size:11px;color:var(--text3);text-align:right">
+    ${iva ? 'IVA 22% inclusa' : 'IVA esclusa'} · failure ${Math.round(d.failure_rate*100)}% · guadagno ${Math.round(d.guadagno_perc*100)}%
+  </div>`;
+
+  document.getElementById('prev-body').innerHTML = html;
+}
+
+function savePDF() {
+  buildPreventivo();
+  window.print();
+}
+
+function showSec(id, el) {
+  document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (el) el.classList.add('active');
+  if (id === 'chart') updateCharts();
+  if (id === 'preventivo') buildPreventivo();
+}
 </script>
 </body>
 </html>
