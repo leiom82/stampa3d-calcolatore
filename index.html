@@ -17,7 +17,9 @@
   --red:#dc2626;--redL:#fee2e2;
   --radius:10px;--radiusLg:14px;
 }
-body.dark{
+body.dark,html.dark{
+  background:#0f1117 !important;
+  color:#e8e8e6 !important;
   --bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.15);
   --text:#e8e8e6;--text2:#9ca3b0;--text3:#5a6070;
   --accent:#0D9488;--accentD:#14b8a6;--accentL:#0a2e2b;
@@ -26,6 +28,33 @@ body.dark{
   --purple:#a78bfa;--purpleL:#1e1640;
   --red:#f87171;--redL:#2a0e0e;
 }
+body.dark input[type=number],body.dark select,body.dark #printerSelect,body.dark #fornitoreSelect{
+  background:var(--surface2);color:var(--text);border-color:var(--border2);color-scheme:dark
+}
+body.dark input[type=range]::-webkit-slider-thumb{border-color:var(--surface)}
+body.dark .card,body.dark .gitem,body.dark .guide-card,body.dark .extra-item{background:var(--surface);border-color:var(--border)}
+body.dark .metric{background:var(--surface2)}
+body.dark code{background:var(--surface2);color:var(--text2)}
+body.dark nav{background:var(--surface);border-color:var(--border)}
+body.dark footer{border-color:var(--border)}
+body.dark h1,body.dark h2,body.dark h3,body.dark strong{color:var(--text)}
+body.dark .gcontent h3{color:var(--text)}
+body.dark .gcontent p{color:var(--text2)}
+body.dark .stept{color:var(--text2)}
+body.dark .gitem .def{color:var(--text2)}
+body.dark .gitem .ex{color:var(--text3)}
+body.dark hr.div{border-color:var(--border)}
+body.dark .brow{border-color:var(--border)}
+body.dark .brow .lbl{color:var(--text2)}
+body.dark .brow .amt{color:var(--text)}
+body.dark .total-box{background:var(--accentL);border-color:rgba(13,148,136,.3)}
+body.dark .total-box .tv{color:var(--accentD)}
+body.dark .guad-box{background:var(--greenL)}
+body.dark #fornitore_info{background:var(--accentL);color:var(--accentD)}
+body.dark .pinfo{background:var(--accentL);color:var(--accentD)}
+body.dark button{background:var(--surface2);color:var(--text);border-color:var(--border2)}
+body.dark *{transition:background-color .25s, color .25s, border-color .25s}
+html.dark,body.dark{background:#0f1117 !important}
 .theme-btn{margin-left:auto;flex-shrink:0;background:none;border:0.5px solid var(--border2);border-radius:20px;padding:5px 12px;font-size:12px;color:var(--text2);cursor:pointer;display:flex;align-items:center;gap:5px;transition:background .2s,color .2s}
 .theme-btn:hover{background:var(--surface2);color:var(--text)}
 @media print{
@@ -878,12 +907,14 @@ loadTariffe();
 // ── TEMA CHIARO / SCURO ──
 function toggleTheme() {
   const dark = document.body.classList.toggle('dark');
+  document.documentElement.classList.toggle('dark', dark);
   document.getElementById('themeBtn').textContent = dark ? '☀️ Chiaro' : '🌙 Scuro';
   localStorage.setItem('tema', dark ? 'dark' : 'light');
 }
 (function(){
   if (localStorage.getItem('tema') === 'dark') {
     document.body.classList.add('dark');
+    document.documentElement.classList.add('dark');
     document.getElementById('themeBtn').textContent = '☀️ Chiaro';
   }
 })();
